@@ -1,0 +1,14 @@
+alias: Red lights
+description: ''
+triggers:
+  - trigger: tag
+    tag_id: 27c945b0-8b4e-4959-982f-4bba77829dc9
+conditions: []
+actions:
+  - action: light.toggle
+    metadata: {}
+    target:
+      entity_id: light.bedroom_lamps
+    data:
+      color_temp_kelvin: 2000
+mode: single
