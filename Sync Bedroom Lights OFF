@@ -1,0 +1,30 @@
+alias: Synchronize Off
+description: ''
+triggers:
+  - type: turned_off
+    device_id: 435d31e23bfbdaabb38842205cf9aec9
+    entity_id: 11318ff16e2e774af5d6800916de03af
+    domain: light
+    trigger: device
+    id: balooga
+conditions:
+  - condition: time
+    after: '07:00:00'
+    before: '21:00:00'
+    weekday:
+      - sun
+      - mon
+      - tue
+      - wed
+      - thu
+      - fri
+      - sat
+actions:
+  - action: light.turn_off
+    target:
+      device_id:
+        - e2558cd5c6c17e290e8df4df0887a91d
+        - edae92708d85c317fc61f78b7487dcbe
+        - a38dda1dc387c950894d9533fa652aa6
+    data: {}
+mode: single
