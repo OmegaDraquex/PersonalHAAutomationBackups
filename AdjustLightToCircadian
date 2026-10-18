@@ -1,0 +1,117 @@
+alias: 'Master Bedroom: Circadian Lifecycle'
+description: Handles 6:20am Sunrise, 9:30pm Wind-Down, and dynamic daytime syncing.
+triggers:
+  - at: '06:20:00'
+    id: sunrise_start
+    trigger: time
+  - at: '21:30:00'
+    id: wind_down_start
+    trigger: time
+conditions:
+  - condition: device
+    device_id: eecad014e88a9ee903f153daf2f19ff2
+    domain: device_tracker
+    entity_id: c507e13584650fa45658885c855a6f68
+    type: is_home
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: sunrise_start
+        sequence:
+          - action: light.turn_on
+            target:
+              device_id:
+                - e2558cd5c6c17e290e8df4df0887a91d
+                - edae92708d85c317fc61f78b7487dcbe
+                - a38dda1dc387c950894d9533fa652aa6
+            data:
+              brightness_pct: 1
+              color_temp_kelvin: 1500
+          - delay: '00:00:01'
+          - action: light.turn_on
+            target:
+              device_id:
+                - e2558cd5c6c17e290e8df4df0887a91d
+                - edae92708d85c317fc61f78b7487dcbe
+                - a38dda1dc387c950894d9533fa652aa6
+            data:
+              brightness_pct: 100
+              color_temp_kelvin: 5000
+              transition: 1800
+          - delay:
+              hours: 0
+              minutes: 35
+              seconds: 0
+              milliseconds: 0
+          - type: turn_on
+            device_id: 4f142b9062fa2d225aabdefc04e4a6b8
+            entity_id: 7881f81fdadb2cecb27c4e7ca831a378
+            domain: switch
+          - type: turn_on
+            device_id: 435d31e23bfbdaabb38842205cf9aec9
+            entity_id: 11318ff16e2e774af5d6800916de03af
+            domain: light
+          - type: turn_on
+            device_id: 0a761f5875b7d39c17acd132f9843b9a
+            entity_id: 7a3e2e84352a10221c3ab31aa2befd5e
+            domain: switch
+          - action: fan.turn_on
+            metadata: {}
+            target:
+              device_id: c6a610a1f6ca15ac955687aaad603cdc
+            data: {}
+          - delay:
+              hours: 0
+              minutes: 15
+              seconds: 0
+              milliseconds: 0
+          - type: turn_off
+            device_id: 4f142b9062fa2d225aabdefc04e4a6b8
+            entity_id: b364c885d0f170734b1782fc2a6d877b
+            domain: light
+          - type: turn_off
+            device_id: 0a761f5875b7d39c17acd132f9843b9a
+            entity_id: 7a3e2e84352a10221c3ab31aa2befd5e
+            domain: switch
+          - action: fan.turn_off
+            metadata: {}
+            target:
+              device_id: c6a610a1f6ca15ac955687aaad603cdc
+            data: {}
+      - conditions:
+          - condition: trigger
+            id: wind_down_start
+        sequence:
+          - action: light.turn_on
+            target:
+              device_id:
+                - e2558cd5c6c17e290e8df4df0887a91d
+                - edae92708d85c317fc61f78b7487dcbe
+                - a38dda1dc387c950894d9533fa652aa6
+            data:
+              brightness_pct: 30
+              color_temp_kelvin: 2000
+              transition: 10
+          - delay: '00:30:00'
+          - action: light.turn_on
+            target:
+              device_id:
+                - e2558cd5c6c17e290e8df4df0887a91d
+                - edae92708d85c317fc61f78b7487dcbe
+                - a38dda1dc387c950894d9533fa652aa6
+            data:
+              rgb_color:
+                - 255
+                - 0
+                - 0
+              brightness_pct: 0
+              transition: 1800
+          - delay: '00:30:01'
+          - action: light.turn_off
+            target:
+              device_id:
+                - e2558cd5c6c17e290e8df4df0887a91d
+                - edae92708d85c317fc61f78b7487dcbe
+                - a38dda1dc387c950894d9533fa652aa6
+mode: restart
