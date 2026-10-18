@@ -1,0 +1,40 @@
+alias: 'Gym: Progressive Dim and Red Shift'
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.gym_motion_detection_radar_presence_detected
+    to: 'on'
+conditions:
+  - condition: and
+    conditions:
+      - condition: time
+        after: '21:00:00'
+        before: '02:00:00'
+      - condition: template
+        value_template: >
+          {{ not this.attributes.last_triggered or (now() -
+          this.attributes.last_triggered).total_seconds() >= 60 }}
+      - condition: light.is_on
+        target:
+          device_id: e6536e53a467bd78c3a2adccb43c4be4
+        options:
+          behavior: any
+actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.gym_light
+    data:
+      brightness_pct: >-
+        {% set current = state_attr('light.gym_light', 'brightness') |
+        default(255, true) %} {% set current_pct = (current / 255 * 100) | round
+        %} {% set next_pct = current_pct - 3 %} {{ [next_pct, 5] | max }}
+      rgb_color: >-
+        {% set rgb = state_attr('light.gym_light', 'rgb_color') | default([255,
+        255, 255], true) %} {% set current_g = rgb[1] %} {% set current_b =
+        rgb[2] %}
+
+        {# Shift Green and Blue down by 8 points per detection until they hit 0
+        #} {% set next_g = [current_g - 8, 0] | max %} {% set next_b =
+        [current_b - 8, 0] | max %}
+
+        [{{ 255 }}, {{ next_g }}, {{ next_b }}]
+mode: single
