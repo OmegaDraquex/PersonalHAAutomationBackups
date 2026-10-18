@@ -1,0 +1,16 @@
+alias: Don't Expensive Fan
+description: ''
+triggers:
+  - trigger: time_pattern
+    minutes: '30'
+conditions:
+  - condition: numeric_state
+    entity_id: sensor.current_energy_price
+    above: 0.13
+actions:
+  - action: climate.set_fan_mode
+    target:
+      entity_id: climate.thermostat
+    data:
+      fan_mode: auto
+mode: single
