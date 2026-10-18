@@ -1,0 +1,113 @@
+alias: Duke Energy TOU - Unified HVAC Manager 2
+description: >-
+  Strictly maps to DE TOU Summer/Winter schedules. Includes anti-aux 
+  ramping, 62F max heat, 74F sleep, 75F awake, 78F weekday away, offset cron
+  for  Ecobee holds, and summer pre-cooling strategies.
+triggers:
+  - trigger: time_pattern
+    minutes: '3'
+  - trigger: time_pattern
+    minutes: '23'
+  - trigger: time_pattern
+    minutes: '43'
+  - trigger: time
+    at:
+      - '01:00:00'
+      - '06:00:00'
+      - '09:00:00'
+      - '09:30:00'
+      - '10:00:00'
+      - '16:00:00'
+      - '16:45:00'
+      - '17:30:00'
+      - '18:00:00'
+      - '21:00:00'
+conditions: []
+actions:
+  - repeat:
+      for_each:
+        - climate.thermostat
+        - climate.thermostat_2
+      sequence:
+        - condition: template
+          value_template: '{{ not is_state(repeat.item, ''off'') }}'
+        - action: climate.set_temperature
+          target:
+            entity_id: '{{ repeat.item }}'
+          data:
+            temperature: >
+              {% set is_cool = is_state(repeat.item, 'cool') %}  {% set t =
+              now() %}  {% set is_weekday = t.isoweekday() <= 5 %}  {% set
+              is_winter = t.month >= 10 or t.month <= 4 %}
+
+              {% if is_winter %}
+                {# ========================================== #}
+                {# WINTER LOGIC (Oct 1 - Apr 30)              #}
+                {# ========================================== #}
+                
+                {% if t.hour < 6 %}
+                  {# Sleep Comfort #}
+                  {{ 74 if is_cool else 62 }}
+                  
+                {% elif t.hour >= 6 and t.hour < 9 %}
+                  {# Peak setback only applies on weekdays #}
+                  {{ (79 if is_weekday else 75) if is_cool else (60 if is_weekday else 62) }}
+                  
+                {% elif t.hour == 9 and t.minute < 30 %}
+                  {# Anti-aux step only necessary if weekday setback occurred #}
+                  {{ (78 if is_weekday else 75) if is_cool else (61 if is_weekday else 62) }}
+                  
+                {% elif t.hour >= 9 and t.hour < 17 %}
+                  {# Weekday away efficiency vs Weekend comfort #}
+                  {{ (78 if is_weekday else 75) if is_cool else 62 }}
+                  
+                {% elif t.hour >= 17 and t.hour < 21 %}
+                  {# Evening Home Comfort #}
+                  {{ 75 if is_cool else 62 }}
+                  
+                {% else %}
+                  {# 9 PM+ Sleep Comfort #}
+                  {{ 74 if is_cool else 62 }}
+                {% endif %}
+
+              {% else %}
+                {# ========================================== #}
+                {# SUMMER LOGIC (May 1 - Sept 30)             #}
+                {# ========================================== #}
+                
+                {% if t.hour < 6 %}
+                  {# Sleep Comfort #}
+                  {{ 74 if is_cool else 62 }}
+                  
+                {% elif t.hour >= 6 and t.hour < 10 %}
+                  {# Morning Awake Comfort #}
+                  {{ 75 if is_cool else 62 }}
+                  
+                {% elif t.hour >= 10 and t.hour < 16 %}
+                  {# Weekday away efficiency vs Weekend comfort #}
+                  {{ (78 if is_weekday else 75) if is_cool else 62 }}
+                  
+                {% elif t.hour >= 16 and t.hour < 18 %}
+                  {% if is_weekday %}
+                    {% if t.hour == 16 and t.minute < 15 %}
+                      {# Still Away - Hold at 78F #}
+                      {{ 76 if is_cool else 62 }}
+                    {% else %}
+                      {# 4:45 PM PRE-COOL to 72F before Peak hits #}
+                      {{ 76 if is_cool else 62 }}
+                    {% endif %}
+                  {% else %}
+                    {# Weekend comfort, no peak to dodge #}
+                    {{ 75 if is_cool else 62 }}
+                  {% endif %}
+                  
+                {% elif t.hour >= 18 and t.hour < 21 %}
+                  {# Peak coasting at 80F applies on weekdays, 75F on weekends #}
+                  {{ (77 if is_weekday else 75) if is_cool else 62 }}
+                  
+                {% else %}
+                  {# 9 PM+ Sleep Comfort #}
+                  {{ 74 if is_cool else 62 }}
+                {% endif %}
+              {% endif %}
+mode: single
