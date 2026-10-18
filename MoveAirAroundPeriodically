@@ -1,0 +1,39 @@
+alias: Periodic Fan Control
+description: Turns fan on for 10 minutes every hour between 11:00 and 19:00
+triggers:
+  - minutes: '0'
+    trigger: time_pattern
+conditions:
+  - condition: and
+    conditions:
+      - condition: time
+        after: '10:59:59'
+        before: '19:00:01'
+      - condition: device
+        device_id: eecad014e88a9ee903f153daf2f19ff2
+        domain: device_tracker
+        entity_id: c507e13584650fa45658885c855a6f68
+        type: is_home
+      - type: is_carbon_dioxide
+        condition: device
+        device_id: 37793904802601897873d715d54299c2
+        entity_id: f7efd4553cd6db2b92c87af518a41adb
+        domain: sensor
+        above: 1000
+      - condition: fan.is_off
+        target:
+          device_id: c6a610a1f6ca15ac955687aaad603cdc
+        options:
+          behavior: any
+actions:
+  - action: fan.turn_on
+    data: {}
+    target:
+      entity_id: fan.house_fridge
+  - delay:
+      minutes: 10
+  - action: fan.turn_off
+    data: {}
+    target:
+      entity_id: fan.house_fridge
+mode: restart
