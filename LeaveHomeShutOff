@@ -1,0 +1,29 @@
+alias: Leave home
+description: ''
+triggers:
+  - trigger: zone
+    entity_id:
+      - device_tracker.pixel_x_pro
+    zone: zone.home
+    event: leave
+conditions: []
+actions:
+  - type: turn_off
+    device_id: c6a610a1f6ca15ac955687aaad603cdc
+    entity_id: 13af2dc8cd6233be5097755d237170c1
+    domain: fan
+  - action: light.turn_off
+    metadata: {}
+    target:
+      device_id:
+        - 4f142b9062fa2d225aabdefc04e4a6b8
+        - e2558cd5c6c17e290e8df4df0887a91d
+        - a38dda1dc387c950894d9533fa652aa6
+        - edae92708d85c317fc61f78b7487dcbe
+        - 435d31e23bfbdaabb38842205cf9aec9
+    data: {}
+  - type: turn_off
+    device_id: 315c74779cb950dfc032376d03243947
+    entity_id: 9c65d6c9ba4391b265b283019c9696ef
+    domain: switch
+mode: single
