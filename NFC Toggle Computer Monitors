@@ -1,0 +1,12 @@
+alias: Monitors nfc
+description: ''
+triggers:
+  - trigger: tag
+    tag_id: 4e2188eb-ee44-45d2-8024-c63b17ee9bee
+conditions: []
+actions:
+  - type: toggle
+    device_id: 315c74779cb950dfc032376d03243947
+    entity_id: 9c65d6c9ba4391b265b283019c9696ef
+    domain: switch
+mode: single
